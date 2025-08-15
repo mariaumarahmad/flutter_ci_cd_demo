@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,7 +32,25 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  String _buildInfo = '';
+  String _buildInfo = 'Loading build info...';
+  @override
+  void initState() {
+    super.initState();
+    _loadBuildInfo();
+  }
+
+  Future<void> _loadBuildInfo() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _buildInfo =
+          '''
+App: ${packageInfo.appName}
+Version: ${packageInfo.version}
+Build: ${packageInfo.buildNumber}
+Package: ${packageInfo.packageName}
+''';
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -50,18 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            const Text('You have pushed the button this many times:'),
+            Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 20),
-            Text(
-              _buildInfo,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(_buildInfo, style: const TextStyle(fontSize: 16)),
           ],
         ),
       ),
