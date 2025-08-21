@@ -6,17 +6,6 @@ workflows:
   my-flutter-android-workflow: # This is your custom workflow ID
     name: My Flutter Android Build # This is the display name
     # 2. When should this workflow run?
-    triggers:
-      - trigger: push
-        branch_patterns:
-          - pattern: 'develop'   # Run on pushes to the 'develop' branch
-            include: true
-          - pattern: 'main'      # Also run on pushes to the 'main' branch
-            include: true
-      - trigger: tag             # Run when a new tag is pushed, e.g., v1.0.0+1
-        tag_patterns:
-          - pattern: '^v.*'      # Matches tags starting with 'v'
-            include: true
 
     # 3. Define the environment (OS, Xcode version for iOS, etc.)
     environment:
