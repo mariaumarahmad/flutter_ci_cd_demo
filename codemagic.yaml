@@ -1,0 +1,74 @@
+# Codemagic YAML configuration for Flutter
+# For a full reference guide, see: https://docs.codemagic.io/yaml/yaml-getting-started/
+
+# 1. Define the workflow name (you can have multiple workflows)
+workflows:
+  my-flutter-android-workflow: # This is your custom workflow ID
+    name: My Flutter Android Build # This is the display name
+    # 2. When should this workflow run?
+    triggers:
+      - trigger: push
+        branch_patterns:
+          - pattern: 'develop'   # Run on pushes to the 'develop' branch
+            include: true
+          - pattern: 'main'      # Also run on pushes to the 'main' branch
+            include: true
+      - trigger: tag             # Run when a new tag is pushed, e.g., v1.0.0+1
+        tag_patterns:
+          - pattern: '^v.*'      # Matches tags starting with 'v'
+            include: true
+
+    # 3. Define the environment (OS, Xcode version for iOS, etc.)
+    environment:
+      groups:
+        - google_play_credentials # <-- Store your JSON key file in Codemagic "Groups" for security
+      vars:
+        BUNDLE_ID: "com.yourcompany.yourapp" # Your app's bundle ID
+        PACKAGE_NAME: "com.yourcompany.yourapp" # Your app's package name
+      # Flutter version can be specified here or in the scripts below
+      # flutter: stable
+
+    # 4. The scripts section: the step-by-step commands to run
+    scripts:
+      - name: Install Flutter version
+        script: |
+          flutter version 3.19.5 # Pin a specific Flutter version
+
+      - name: Get Flutter dependencies
+        script: |
+          flutter pub get
+
+      - name: Run Flutter tests
+        script: |
+          flutter test
+
+      - name: Build Android App Bundle
+        script: |
+          flutter build appbundle --release --dart-define=MY_VAR=my_value
+          # Use 'flutter build apk' for APK instead of App Bundle
+
+    # 5. What to do with the built artifacts?
+    artifacts:
+      - build/**/outputs/**/*.aab  # Path to the generated App Bundle
+      # - build/**/outputs/**/*.apk # Path to the generated APK
+
+    # 6. Publishing (Google Play, TestFlight, Slack, etc.)
+    publishing:
+      email:
+        recipients:
+          - your-email@company.com # Get notified via email
+        notify:
+          success: true
+          failure: true
+
+      scripts:
+        - name: Publish to Google Play
+          script: |
+            # This command uses the credentials stored in the 'google_play_credentials' group
+            # You must upload your Google Play JSON API key to Codemagic and add it to that group.
+            cd $CM_BUILD_DIR
+            bundle exec fastlane deploy_to_play_store
+            # Alternatively, use the codemagic CLI tool:
+            # cm-publish --path build/app/outputs/bundle/release/*.aab \
+            #   --track internal \
+            #   --credentials $CM_FCI_KEY_STORE
