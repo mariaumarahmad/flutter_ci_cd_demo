@@ -1,63 +1,41 @@
-# Codemagic YAML configuration for Flutter
-# For a full reference guide, see: https://docs.codemagic.io/yaml/yaml-getting-started/
-
-# 1. Define the workflow name (you can have multiple workflows)
 workflows:
-  my-flutter-android-workflow: # This is your custom workflow ID
-    name: My Flutter Android Build # This is the display name
-    # 2. When should this workflow run?
-
-    # 3. Define the environment (OS, Xcode version for iOS, etc.)
+  my-workflow:
+    name: My workflow name
+    labels:
+      - QA
+      - ${TENANT_NAME}
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    inputs: # more information about build inputs:https://docs.codemagic.io/knowledge-codemagic/build-inputs/
+      name: # input ID
+        description: Input description
+        default: Codemagic
     environment:
       groups:
-        - google_play_credentials # <-- Store your JSON key file in Codemagic "Groups" for security
+        - group_name
       vars:
-        BUNDLE_ID: "com.yourcompany.yourapp" # Your app's bundle ID
-        PACKAGE_NAME: "com.yourcompany.yourapp" # Your app's package name
-      # Flutter version can be specified here or in the scripts below
-      # flutter: stable
-
-    # 4. The scripts section: the step-by-step commands to run
+        PUBLIC_ENV_VAR: "value here"
+      flutter: stable
+      xcode: latest
+    cache:
+      cache_paths:
+        - ~/.pub-cache
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+      cancel_previous_builds: false
     scripts:
-      - name: Install Flutter version
-        script: |
-          flutter version 3.19.5 # Pin a specific Flutter version
-
-      - name: Get Flutter dependencies
-        script: |
-          flutter pub get
-
-      - name: Run Flutter tests
-        script: |
-          flutter test
-
-      - name: Build Android App Bundle
-        script: |
-          flutter build appbundle --release --dart-define=MY_VAR=my_value
-          # Use 'flutter build apk' for APK instead of App Bundle
-
-    # 5. What to do with the built artifacts?
+      - echo "Hello, ${{ inputs.name }}"
+      - ...
     artifacts:
-      - build/**/outputs/**/*.aab  # Path to the generated App Bundle
-      # - build/**/outputs/**/*.apk # Path to the generated APK
-
-    # 6. Publishing (Google Play, TestFlight, Slack, etc.)
+      - build/**/outputs/bundle/**/*.aab
     publishing:
       email:
         recipients:
-          - your-email@company.com # Get notified via email
-        notify:
-          success: true
-          failure: true
-
+          - name@example.com
       scripts:
-        - name: Publish to Google Play
-          script: |
-            # This command uses the credentials stored in the 'google_play_credentials' group
-            # You must upload your Google Play JSON API key to Codemagic and add it to that group.
-            cd $CM_BUILD_DIR
-            bundle exec fastlane deploy_to_play_store
-            # Alternatively, use the codemagic CLI tool:
-            # cm-publish --path build/app/outputs/bundle/release/*.aab \
-            #   --track internal \
-            #   --credentials $CM_FCI_KEY_STORE
+        - echo 'Post-publish script'
