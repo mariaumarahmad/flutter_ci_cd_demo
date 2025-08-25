@@ -10,7 +10,7 @@ workflows:
         default: Codemagic
     environment:
       groups:
-        - group_name
+        - google_credentials
       vars:
         PUBLIC_ENV_VAR: "value here"
       flutter: stable
@@ -27,12 +27,14 @@ workflows:
           source: true
       cancel_previous_builds: false
     scripts:
-      - echo "Hello, ${{ inputs.name }}"
+      - echo "maria Hello, ${{ inputs.name }}"
     artifacts:
-      - build/**/outputs/bundle/**/*.aab
+      - build/**/outputs/apk/**/*.apk
+      - build/**/outputs/**/*.aab
     publishing:
       email:
         recipients:
-          - name@example.com
-      scripts:
-        - echo 'Post-publish script'
+          - mariaumar.ahmad@gmail.com
+      google_play:
+        credentials: $GOOGLE_SERVICE_ACCOUNT
+        track: alpha
