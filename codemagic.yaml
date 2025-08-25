@@ -10,7 +10,6 @@ workflows:
         - google_credentials
       vars:
         PUBLIC_ENV_VAR: "value here"
-      android: latest
       flutter: stable
 
     cache:
