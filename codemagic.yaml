@@ -1,23 +1,22 @@
 workflows:
-  my-workflow:
-    name: My workflow name
+  android-release:
+    name: Android Release Build
 
-    instance_type: mac_mini_m2
+    instance_type: linux
     max_build_duration: 60
-    inputs: # more information about build inputs:https://docs.codemagic.io/knowledge-codemagic/build-inputs/
-      name: # input ID
-        description: Input description
-        default: Codemagic
+
     environment:
       groups:
         - google_credentials
       vars:
         PUBLIC_ENV_VAR: "value here"
+      android: latest
       flutter: stable
-      xcode: latest
+
     cache:
       cache_paths:
         - ~/.pub-cache
+
     triggering:
       events:
         - push
@@ -26,11 +25,18 @@ workflows:
           include: true
           source: true
       cancel_previous_builds: false
+
     scripts:
-      - echo "maria Hello, ${{ inputs.name }}"
+      - name: Build Android App
+        script: |
+          flutter packages pub get
+          flutter build appbundle --release
+          # For APK: flutter build apk --release
+
     artifacts:
+      - build/**/outputs/bundle/**/*.aab
       - build/**/outputs/apk/**/*.apk
-      - build/**/outputs/**/*.aab
+
     publishing:
       email:
         recipients:
@@ -38,3 +44,4 @@ workflows:
       google_play:
         credentials: $GOOGLE_SERVICE_ACCOUNT
         track: alpha
+        in_app_update_priority: 0
