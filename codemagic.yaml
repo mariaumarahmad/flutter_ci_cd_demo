@@ -2,7 +2,10 @@ workflows:
   android-release:
     name: Android Release Build
 
-    instance_type: linux
+
+    instance_type: mac_mini_m1   # If available
+    # OR check available instances in your Codemagic dashboard
+
     max_build_duration: 60
 
     environment:
