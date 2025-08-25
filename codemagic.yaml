@@ -44,6 +44,6 @@ workflows:
         recipients:
           - mariaumar.ahmad@gmail.com
       google_play:
-        credentials: GCLOUD_SERVICE_ACCOUNT_CREDENTIALS # Standard variable name
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS # Standard variable name
         track: alpha
         in_app_update_priority: 0
